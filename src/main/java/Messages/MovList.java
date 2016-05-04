@@ -18,6 +18,8 @@ public class MovList implements MessageInterface, Serializable {
     private int nMovs;
     private List<Movement> movements;
 
+    private int stateId;
+
     public MovList(String messageId, long accountId, int nMovs) {
         this.messageId = messageId;
         this.accountId = accountId;
@@ -61,5 +63,9 @@ public class MovList implements MessageInterface, Serializable {
 
     public void setMovements(List<Movement> movList) {
         this.movements=movList;
+    }
+
+    public int getState() {
+        return this.stateId;
     }
 }

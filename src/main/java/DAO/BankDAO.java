@@ -1,5 +1,6 @@
 package DAO;
 
+import Entitys.Account;
 import Entitys.Movement;
 
 import java.sql.*;
@@ -10,31 +11,13 @@ import java.util.List;
  * Created by carlosmorais on 28/04/16.
  */
 public class BankDAO {
-    // TODO: 28/04/16 "bank" + identificador único -> passado como argumento?
-    private static String DB_PREFIX = "bank";
-    private static String PROTOCOL = "jdbc:derby:";
-
-    private String DB_NAME;
-
-    private Connection connection;
-
-    public BankDAO(int id) throws SQLException {
-        this.DB_NAME = DB_PREFIX+id;
-    }
 
 
-    public void loadDB(){
+    public BankDAO() { }
+
+
+    public void creatDB(Connection connection){
         try {
-            this.connection = DriverManager.getConnection(PROTOCOL + DB_NAME + ";");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void creatDB(){
-        try {
-            this.connection = DriverManager.getConnection(PROTOCOL + DB_NAME + ";create=true");
-            log("Connected to and created database "+DB_NAME);
             Statement st = connection.createStatement();
 
             //apaga o que existe
@@ -47,21 +30,21 @@ public class BankDAO {
 
             //cria tabelas para dados
             st.executeUpdate("create table accounts (id int PRIMARY KEY, balance int)");
-            st.executeUpdate("create table dbInfo(idAccount int, idMov int)");
+            st.executeUpdate("create table dbInfo(idAccount int, idMov int, lastOp varchar(100))");
             st.executeUpdate("create table movement(id int, idAccount int, type varchar(30), amount int)");
             log("tables created");
 
 
-            st.executeUpdate("insert into dbInfo VALUES (1000,1000)");
-            log("Info nserted");
+            st.executeUpdate("insert into dbInfo VALUES (1000, 1000, null)");
+            log("Info inserted");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
 
-    public long newAccount() throws SQLException {
-        long id = this.getNextAccountId();
+    public long newAccount(Connection connection) throws SQLException {
+        long id = this.getNextAccountId(connection);
         String updateStatement = "INSERT INTO accounts VALUES (?, 0)";
         PreparedStatement statement = connection.prepareStatement(updateStatement);
         statement.setInt(1, (int) id);
@@ -71,7 +54,7 @@ public class BankDAO {
     }
 
 
-    public int getBalance(long id) throws SQLException {
+    public int getBalance(Connection connection, long id) throws SQLException {
         String st = "SELECT balance FROM accounts WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(st);
         statement.setInt(1, (int) id);
@@ -84,33 +67,43 @@ public class BankDAO {
         return balance;
     }
 
-    public void deposit(long id, int amount) throws SQLException {
+    public void mov(Connection connection, long id, int amount) throws SQLException {
         String updateStatement = "UPDATE accounts SET balance = balance + ? WHERE id = ? ";
         PreparedStatement statement = connection.prepareStatement(updateStatement);
         statement.setInt(1,amount);
         statement.setInt(2, (int) id);
         statement.execute();
         statement.close();
-        this.movement(id, "crédito", amount);
+    }
+    
+
+    public void updateLastOpId(Connection connection, String opId) throws SQLException {
+        String updateStatement = "UPDATE dbInfo SET lastOp = ? ";
+        PreparedStatement statement = connection.prepareStatement(updateStatement);
+        statement.setString(1, opId);
+        statement.execute();
+        statement.close();
     }
 
-    public void withdraw(long id, int amount) throws SQLException {
-        String updateStatement = "UPDATE accounts SET balance = balance + ? WHERE id = ? ";
-        PreparedStatement statement = connection.prepareStatement(updateStatement);
-        statement.setInt(1,amount);
-        statement.setInt(2, (int) id);
-        statement.execute();
+    public String getLastOpId(Connection connection) throws SQLException {
+        String st = "SELECT lastOp FROM dbInfo";
+        PreparedStatement statement = connection.prepareStatement(st);
+        String id=null;
+        ResultSet rs = statement.executeQuery();
+        if(rs.next()){
+            id = rs.getString(1);
+        }
         statement.close();
-        this.movement(id, "débito", amount);
+        return id;
     }
 
 
     // TODO: 28/04/16 passar a receber como arg o objeto Movement, com mais detalhes para serem persitidos...
-    public void movement(long accountId, String type, int amount) throws SQLException {
+    public void movement(Connection connection, long accountId, String type, int amount) throws SQLException {
         String updateStatement = "INSERT INTO movement VALUES (?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(updateStatement);
 
-        statement.setInt(1, this.getNextMovId());
+        statement.setInt(1, this.getNextMovId(connection));
         statement.setInt(2, (int) accountId);
         statement.setString(3, type);
         statement.setInt(4, amount);
@@ -119,7 +112,7 @@ public class BankDAO {
     }
 
 
-    public List<Movement> getMovs(long accountId, int n) throws SQLException {
+    public List<Movement> getMovs(Connection connection, long accountId, int n) throws SQLException {
         ArrayList<Movement> res = new ArrayList<>();
         String updateStatement = "SELECT * FROM movement WHERE idAccount = ? order by id desc FETCH FIRST ? ROWS ONLY";
         // order by id desc limit N;
@@ -137,7 +130,7 @@ public class BankDAO {
     }
 
 
-    public int getNextAccountId() throws SQLException {
+    public int getNextAccountId(Connection connection) throws SQLException {
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery("SELECT idAccount from dbInfo");
         rs.next();
@@ -146,7 +139,7 @@ public class BankDAO {
         return id;
     }
 
-    public int getNextMovId() throws SQLException {
+    public int getNextMovId(Connection connection) throws SQLException {
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery("SELECT idMov from dbInfo");
         rs.next();
@@ -155,42 +148,26 @@ public class BankDAO {
         return id;
     }
 
+
+    public List<Account> getAccounts(Connection connection) throws SQLException {
+        List<Account> accounts = new ArrayList<Account>();
+        String stAccount = "SELECT * FROM accounts";
+        PreparedStatement statement = connection.prepareStatement(stAccount);
+        ResultSet rs = statement.executeQuery();
+
+        while(rs.next()){
+            Account account = new Account(rs.getLong(1), rs.getInt(2));
+            account.setMovs(this.getMovs(connection, account.getId(), 10000));
+            accounts.add(account);
+        }
+
+        statement.close();
+        return accounts;
+    }
+
+
     private void log(String s){
         System.out.println(s);
     }
 
-    public static void main(String[] args) throws SQLException {
-        BankDAO dao = new BankDAO(1);
-
-
-        dao.creatDB();
-        //dao.loadDB();
-
-
-        /*
-        System.out.println(dao.getNextMovId());
-        System.out.println(dao.getNextMovId());
-        System.out.println(dao.getNextMovId());
-        */
-
-        dao.deposit(1000, 500);
-        dao.deposit(1001, 500);
-        dao.withdraw(1000, 100);
-        dao.withdraw(1001, 40);
-        dao.withdraw(1000, 40);
-
-
-
-        System.out.println("1000: "+dao.getBalance(1000));
-        List<Movement> res = dao.getMovs(1000, 4);
-        for(Movement m : res)
-            System.out.println(m.toString());
-
-
-        System.out.println("1001: "+dao.getBalance(1001));
-        res = dao.getMovs(1001, 1);
-        for(Movement m : res)
-            System.out.println(m.toString());
-
-    }
 }

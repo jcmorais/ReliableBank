@@ -22,26 +22,26 @@ public class TestTransf {
         BankStub bank = new BankStub();
         long idAux;
 
-        long id1 = bank.newAccount();
+        long id1 = bank.newAccount(null);
         firstId = id1;
         contas.put(id1, new AtomicInteger(startAmount));
-        long  id2 = bank.newAccount();
+        long  id2 = bank.newAccount(null);
         contas.put(id2, new AtomicInteger(startAmount));
-        long  id3 = bank.newAccount();
+        long  id3 = bank.newAccount(null);
         contas.put(id3, new AtomicInteger(startAmount));
-        long  id4 = bank.newAccount();
+        long  id4 = bank.newAccount(null);
         contas.put(id4, new AtomicInteger(startAmount));
-        long  id5 = bank.newAccount();
+        long  id5 = bank.newAccount(null);
         contas.put(id5, new AtomicInteger(startAmount));
-        long  id6 = bank.newAccount();
+        long  id6 = bank.newAccount(null);
         contas.put(id6, new AtomicInteger(startAmount));
 
-        bank.mov(id1, startAmount);
-        bank.mov(id2, startAmount);
-        bank.mov(id3, startAmount);
-        bank.mov(id4, startAmount);
-        bank.mov(id5, startAmount);
-        bank.mov(id6, startAmount);
+        bank.mov(id1, startAmount, null);
+        bank.mov(id2, startAmount, null);
+        bank.mov(id3, startAmount, null);
+        bank.mov(id4, startAmount, null);
+        bank.mov(id5, startAmount, null);
+        bank.mov(id6, startAmount, null);
 
         ClientTest c1 = new ClientTest(contas);
         ClientTest c2 = new ClientTest(contas);
@@ -86,7 +86,7 @@ public class TestTransf {
                 }
                 while(idS<=0 && idD<=0 && idD!=idS);
 
-                if(bank.transf(idS, idD, val)) {
+                if(bank.transf(idS, idD, val, null)) {
                     this.contas.get(idS).addAndGet(-val);
                     this.contas.get(idD).addAndGet(val);
                 }

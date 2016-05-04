@@ -27,18 +27,18 @@ public class TestMOV extends TestCase {
         BankStub bank = new BankStub();
         long idAux;
 
-        long id1 = bank.newAccount();
+        long id1 = bank.newAccount(null);
         firstId = id1;
         contas.put(id1, new AtomicInteger(0));
-        long  id2 = bank.newAccount();
+        long  id2 = bank.newAccount(null);
         contas.put(id2, new AtomicInteger(0));
-        long  id3 = bank.newAccount();
+        long  id3 = bank.newAccount(null);
         contas.put(id3, new AtomicInteger(0));
-        long  id4 = bank.newAccount();
+        long  id4 = bank.newAccount(null);
         contas.put(id4, new AtomicInteger(0));
-        long  id5 = bank.newAccount();
+        long  id5 = bank.newAccount(null);
         contas.put(id5, new AtomicInteger(0));
-        long  id6 = bank.newAccount();
+        long  id6 = bank.newAccount(null);
         contas.put(id6, new AtomicInteger(0));
 
         ClientTest c1 = new ClientTest(contas);
@@ -84,7 +84,7 @@ public class TestMOV extends TestCase {
                 while(id<=0);
 
                 System.out.println(id +" "+ val);
-                if(bank.mov(id,val)) {
+                if(bank.mov(id,val,null)) {
                     this.contas.get(id).addAndGet(val);
                 }
             }

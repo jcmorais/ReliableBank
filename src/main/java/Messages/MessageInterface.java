@@ -9,4 +9,6 @@ public interface MessageInterface{
     boolean isDone();
     void setDone();
     void setResponse();
+
+    public int getState();
 }

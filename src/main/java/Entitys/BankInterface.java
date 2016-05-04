@@ -7,8 +7,8 @@ import java.util.List;
  */
 public interface BankInterface {
     public int getBalance(long accountId);
-    long newAccount();
-    boolean mov(long accountId, int amount);
-    boolean transf(long source, long dest, int amount);
+    long newAccount(String opId);
+    boolean mov(long accountId, int amount, String opId);
+    boolean transf(long source, long dest, int amount, String opId);
     List<Movement> movList(long id, int n);
 }

@@ -13,11 +13,11 @@ import static java.lang.Math.abs;
 public class Account implements Serializable {
     private long id;
     private int balance;
-    private List<String> movs;
+    private List<Movement> movs;
 
-    public Account(long id) {
+    public Account(long id, int balance) {
         this.id = id;
-        this.balance = 0;
+        this.balance = balance;
         this.movs = new ArrayList<>();
     }
 
@@ -29,33 +29,33 @@ public class Account implements Serializable {
         return balance;
     }
 
-    public List<String> getMovs() {
-        List<String> res = new ArrayList<>();
+    public List<Movement> getMovs() {
+        List<Movement> res = new ArrayList<>();
 
-        for(String mov : movs) {
+        for(Movement mov : movs) {
             res.add(mov);
         }
 
         return res;
     }
 
-    public void deposit(boolean transf, int val) {
-        balance += val;
-        if(transf)
-            movs.add("Transf:" + val);
-        else
-            movs.add("Deposit:" + val);
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Account{" +
+                "id=" + id +
+                ", balance=" + balance +
+                ", movs:");
+
+        for(Movement m : this.movs)
+            sb.append(">>>"+m.toString());
+
+        sb.append('}');
+
+        return sb.toString();
     }
 
-    public boolean withdraw(boolean transf, int val) {
-        if(balance+val<0) return false;
-
-        balance += val;
-        if(transf)
-            movs.add("Transf:" + val);
-        else
-            movs.add("Withdraw:" + abs(val));
-
-        return true;
+    public void setMovs(List<Movement> movs) {
+        this.movs = movs;
     }
 }

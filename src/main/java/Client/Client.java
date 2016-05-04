@@ -34,7 +34,7 @@ public class Client {
 
             switch (tokens[0]){
                 case "1":
-                    System.out.println("ID:"+bank.newAccount());
+                    System.out.println("ID:"+bank.newAccount(null));
                     break;
                 case "2":
                     id = Long.parseLong(tokens[1]);
@@ -43,7 +43,7 @@ public class Client {
                 case "3":
                     id = Long.parseLong(tokens[1]);
                     amount = Integer.parseInt(tokens[2]);
-                    if(bank.mov(id, amount))
+                    if(bank.mov(id, amount, null))
                         System.out.println("good :)");
                     else
                         System.out.println("bad :(");
@@ -52,7 +52,7 @@ public class Client {
                     long s = Long.parseLong(tokens[1]);
                     long d = Long.parseLong(tokens[2]);
                     amount = Integer.parseInt(tokens[3]);
-                    if(bank.transf(s, d, amount))
+                    if(bank.transf(s, d, amount, null))
                         System.out.println("good :)");
                     else
                         System.out.println("bad :(");

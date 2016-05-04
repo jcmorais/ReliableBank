@@ -12,6 +12,8 @@ public class Balance implements MessageInterface, Serializable {
     private long accountId;
     private int amount;
 
+    private int stateId;
+
     public Balance(String messageId, long accountId) {
         this.messageId = messageId;
         this.accountId = accountId;
@@ -49,4 +51,8 @@ public class Balance implements MessageInterface, Serializable {
 
     @Override
     public void setResponse() { this.response = true; }
+
+    public int getState() {
+        return this.stateId;
+    }
 }
