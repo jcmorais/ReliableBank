@@ -9,16 +9,21 @@ import java.util.List;
 /**
  * Created by carlosmorais on 27/04/16.
  */
+
+/**
+ * Operação utilizada para um Server pedir atualização de estado a outros Servers
+ */
 public class GetState implements MessageInterface, Serializable {
     private String messageId;
     private boolean done;
     private boolean response;
 
-    private boolean incremental;
-    private boolean allDB;
+    private boolean incremental; //pedido de atualização INCREMENTAL
+    private boolean allDB; //pedido de atualização TOTAL
 
     //incremental
-    private String lastOpId; //id da última operação feita com sucesso pelo Servidor
+    //id da última operação feita com sucesso pelo Servidor, pretende-se receber todas as operações a partir daqui
+    private String lastOpId;
     private List<MessageInterface> operations;
 
     //allDb
@@ -45,12 +50,14 @@ public class GetState implements MessageInterface, Serializable {
     }
 
     @Override
-    public void setDone() {
-        this.done = true;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     @Override
-    public void setResponse() { this.response = true; }
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
 
     public String getLastOpId() {
         return lastOpId;
@@ -63,7 +70,6 @@ public class GetState implements MessageInterface, Serializable {
     public void setOperations(List<MessageInterface> operations) {
         this.operations = operations;
     }
-
 
     public boolean isAllDB() {
         return allDB;

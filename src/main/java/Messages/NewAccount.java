@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class NewAccount implements MessageInterface, Serializable {
     private String messageId;
     private boolean done;
-    private long accountId;
+    private int accountId;
     private boolean response;
 
     public NewAccount(String messageId) {
@@ -19,11 +19,11 @@ public class NewAccount implements MessageInterface, Serializable {
         this.response = false;
     }
 
-    public long getAccountId() {
+    public int getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(long accountId) {
+    public void setAccountId(int accountId) {
         this.accountId = accountId;
     }
 
@@ -39,10 +39,12 @@ public class NewAccount implements MessageInterface, Serializable {
     }
 
     @Override
-    public void setDone() {
-        this.done = true;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     @Override
-    public void setResponse() { this.response = true; }
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
 }

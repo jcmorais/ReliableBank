@@ -47,38 +47,44 @@ public class BankStub implements BankInterface, MessageListener {
     }
 
     @Override
-    public boolean mov(long accountId, int amount, String opId) {
+    public boolean mov(int accountId, int amount, String opId) {
         MessageInterface msg = new Mov(this.getNextId(), accountId ,amount);
         Mov msgRes = (Mov) this.sendAndRequest(msg);
         return msgRes.isDone();
     }
 
     @Override
-    public synchronized int getBalance(long accountId) {
+    public synchronized int getBalance(int accountId) {
         MessageInterface msg = new Balance(this.getNextId(), accountId);
         Balance msgRes = (Balance) this.sendAndRequest(msg);
-        return msgRes.getAmount();
+        if(msgRes.isDone())
+            return msgRes.getAmount();
+        else
+            return -1;
     }
 
     @Override
-    public long newAccount(String opId) {
+    public int newAccount(String opId) {
         MessageInterface msg = new NewAccount(this.getNextId());
         NewAccount msgRes = (NewAccount) this.sendAndRequest(msg);
         return msgRes.getAccountId();
     }
 
     @Override
-    public boolean transf(long source, long dest, int amount, String opId) {
+    public boolean transf(int source, int dest, int amount, String opId) {
         MessageInterface msg = new Transf(this.getNextId(), source, dest, amount);
         Transf msgRes = (Transf) this.sendAndRequest(msg);
         return msgRes.isDone();
     }
 
     @Override
-    public List<Movement> movList(long id, int n) {
+    public List<Movement> movList(int id, int n) {
         MessageInterface msg = new MovList(this.getNextId(), id, n);
         MovList msgRes = (MovList) this.sendAndRequest(msg);
-        return msgRes.getMovements();
+        if(msgRes.isDone())
+            return msgRes.getMovements();
+        else
+            return null;
     }
 
     public String getNextId(){

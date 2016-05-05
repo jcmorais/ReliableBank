@@ -7,7 +7,7 @@ import java.util.List;
  * Created by carlosmorais on 04/05/16.
  */
 
-//para passar todo o estado da BD
+//para passar o estado da BD
 public class DataBaseBank implements Serializable {
     private List<Account> accounts;
     private List<Movement> movements;
@@ -68,7 +68,7 @@ public class DataBaseBank implements Serializable {
             sb.append("  ->"+a.toString()+"\n");
         sb.append("\nAll Movements\n");
         for(Movement a: this.movements)
-            sb.append("  ->"+a.toString()+" : ");
+            sb.append("  ->"+a.toString()+" : \n");
         sb.append("\n\n");
         return sb.toString();
     }

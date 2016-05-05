@@ -8,6 +8,10 @@ import java.util.*;
  * Created by carlosmorais on 28/04/16.
  */
 public class Operations {
+    /**
+     * Onde são armezenadas todas as operações que vão ser feitas no Server
+     * Apenas são guardadas operações de escrita (que provocam uma alteração ao estado)
+     */
     private List<MessageInterface> operations;
     private Set<String> ids;
 

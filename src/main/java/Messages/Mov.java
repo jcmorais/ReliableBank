@@ -9,10 +9,10 @@ public class Mov implements Serializable, MessageInterface {
     private String messageId;
     private boolean done;
     private boolean response;
-    private long accountId;
+    private int accountId;
     private int amount;
 
-    public Mov(String messageId, long accountId, int amount) {
+    public Mov(String messageId, int accountId, int amount) {
         this.messageId = messageId;
         this.amount = amount;
         this.accountId = accountId;
@@ -20,7 +20,7 @@ public class Mov implements Serializable, MessageInterface {
         this.response = false;
     }
 
-    public long getAccountId() {
+    public int getAccountId() {
         return accountId;
     }
 
@@ -40,11 +40,13 @@ public class Mov implements Serializable, MessageInterface {
     }
 
     @Override
-    public void setDone() {
-        this.done = true;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     @Override
-    public void setResponse() { this.response = true; }
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
 
 }

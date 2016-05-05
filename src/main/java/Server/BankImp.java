@@ -1,7 +1,6 @@
 package Server;
 
 import DAO.BankDAO;
-import Entitys.Account;
 import Entitys.BankInterface;
 import Entitys.DataBaseBank;
 import Entitys.Movement;
@@ -54,7 +53,7 @@ public class BankImp implements BankInterface {
     }
 
     @Override
-    public int getBalance(long accountId) {
+    public int getBalance(int accountId) {
         try {
             return this.bankDAO.getBalance(this.connection, accountId);
         } catch (SQLException e) {
@@ -64,8 +63,8 @@ public class BankImp implements BankInterface {
     }
 
     @Override
-    public synchronized long newAccount(String opId) {
-        long id = -1;
+    public synchronized int newAccount(String opId) {
+        int id = -1;
         try {
             id = this.bankDAO.newAccount(this.connection);
             this.bankDAO.updateLastOpId(this.connection, opId);
@@ -82,7 +81,7 @@ public class BankImp implements BankInterface {
     }
 
     @Override
-    public synchronized boolean mov(long id, int amount, String opId) {
+    public synchronized boolean mov(int id, int amount, String opId) {
         boolean ok = false;
         try {
             int balance = this.bankDAO.getBalance(this.connection, id);
@@ -111,7 +110,7 @@ public class BankImp implements BankInterface {
 
 
     @Override
-    public boolean transf(long source, long dest, int amount, String opId) {
+    public boolean transf(int source, int dest, int amount, String opId) {
         try {
             int balanceSource = this.bankDAO.getBalance(this.connection, source);
             if((balanceSource-amount) >= 0) {
@@ -135,8 +134,10 @@ public class BankImp implements BankInterface {
     }
 
     @Override
-    public  List<Movement> movList(long id, int n) {
+    public  List<Movement> movList(int id, int n) {
         try {
+            if(!this.bankDAO.hasAccount(connection, id))
+                return null;
             return this.bankDAO.getMovs(this.connection, id, n);
         } catch (SQLException e) {
             e.printStackTrace();

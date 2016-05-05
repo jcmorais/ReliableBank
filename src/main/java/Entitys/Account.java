@@ -11,17 +11,17 @@ import static java.lang.Math.abs;
  */
 
 public class Account implements Serializable {
-    private long id;
+    private int id;
     private int balance;
     private List<Movement> movs;
 
-    public Account(long id, int balance) {
+    public Account(int id, int balance) {
         this.id = id;
         this.balance = balance;
         this.movs = new ArrayList<>();
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 

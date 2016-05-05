@@ -9,31 +9,41 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by carlosmorais on 28/04/16.
  */
+
+
+/**
+ *  São utilizadas duas Threads que simulam a execução simultanea de dois Clients, para qualquer número de Servers
+ *  São criadas 'CONTAS' contas;
+ *  É feito um deposito no valor de 'startAmount' para cada conta criada;
+ *  São feitas 'TRANSF' transferências aleatórias entre as contas criadas;
+ *  No fim é verificado que o saldo no Server, para cada conta criada corresponde ao valor esperado
+ */
+
 public class TestTransf {
 
     private static final int CONTAS = 6;
-    private static final int TRANSF = 10;
+    private static final int TRANSF = 20;
     private static final int startAmount = 100;
-    private long firstId;
+    private int firstId;
 
     @org.junit.Test
     public void teste(){
-        HashMap<Long, AtomicInteger> contas = new HashMap();
+        HashMap<Integer, AtomicInteger> contas = new HashMap();
         BankStub bank = new BankStub();
         long idAux;
 
-        long id1 = bank.newAccount(null);
+        int id1 = bank.newAccount(null);
         firstId = id1;
         contas.put(id1, new AtomicInteger(startAmount));
-        long  id2 = bank.newAccount(null);
+        int id2 = bank.newAccount(null);
         contas.put(id2, new AtomicInteger(startAmount));
-        long  id3 = bank.newAccount(null);
+        int id3 = bank.newAccount(null);
         contas.put(id3, new AtomicInteger(startAmount));
-        long  id4 = bank.newAccount(null);
+        int id4 = bank.newAccount(null);
         contas.put(id4, new AtomicInteger(startAmount));
-        long  id5 = bank.newAccount(null);
+        int id5 = bank.newAccount(null);
         contas.put(id5, new AtomicInteger(startAmount));
-        long  id6 = bank.newAccount(null);
+        int id6 = bank.newAccount(null);
         contas.put(id6, new AtomicInteger(startAmount));
 
         bank.mov(id1, startAmount, null);
@@ -65,10 +75,10 @@ public class TestTransf {
 
 
     public class ClientTest extends Thread {
-        HashMap<Long, AtomicInteger> contas;
+        HashMap<Integer, AtomicInteger> contas;
         BankStub bank;
 
-        public ClientTest(HashMap<Long, AtomicInteger> contas){
+        public ClientTest(HashMap<Integer, AtomicInteger> contas){
             this.contas=contas;
             this.bank = new BankStub();
         }
@@ -76,7 +86,8 @@ public class TestTransf {
         @Override
         public void run() {
             Random generator = new Random();
-            long idS=0, idD=0;
+            int idS=0;
+            int idD=0;
             for(int i = 0;i<TRANSF;i++) {
                 int val = generator.nextInt(100)+1;
 

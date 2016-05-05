@@ -9,17 +9,17 @@ public class Balance implements MessageInterface, Serializable {
     private String messageId;
     private boolean done;
     private boolean response;
-    private long accountId;
+    private int accountId;
     private int amount;
 
-    public Balance(String messageId, long accountId) {
+    public Balance(String messageId, int accountId) {
         this.messageId = messageId;
         this.accountId = accountId;
         this.done = false;
         this.response = false;
     }
 
-    public long getAccountId() {
+    public int getAccountId() {
         return this.accountId;
     }
 
@@ -43,10 +43,12 @@ public class Balance implements MessageInterface, Serializable {
     }
 
     @Override
-    public void setDone() {
-        this.done = true;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     @Override
-    public void setResponse() { this.response = true; }
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
 }

@@ -1,5 +1,6 @@
 package Server;
 
+import Entitys.Movement;
 import Entitys.Operations;
 import Messages.*;
 import Utils.ObjectSerializable;
@@ -61,9 +62,9 @@ public class Server implements MessageListener{
 
 
     private void startServer() {
-        this.operations = new Operations(); //cria uma operations limpa
+        this.operations = new Operations();
         this.bank.creatDB(); //cria uma BD limpa
-        this.readFromClient = true; //começa a ler do cliente
+        this.readFromClient = true; //pronto a ler pedidos do cliente
     }
 
 
@@ -77,8 +78,8 @@ public class Server implements MessageListener{
             Message request = dataSession.createMessage();
             byte[] bytes = ObjectSerializable.ObjectToBytes(getState);
             request.setPayload(bytes);
-            this.waitFor = getState.getMessageId(); //esta é a resposta ao estado que quero receber
-            this.recoverMode = true;
+            this.waitFor = getState.getMessageId(); //esta é a resposta ao GetState que quero receber
+            this.recoverMode = true; //Server está em recoverMode, não responde a pedidos do Client
             dataSession.multicast(request, new JGroupsService(), null);
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,7 +97,7 @@ public class Server implements MessageListener{
             byte[] bytes = ObjectSerializable.ObjectToBytes(getState);
             request.setPayload(bytes);
             this.waitFor = getState.getMessageId(); //esta é a resposta ao estado que quero receber
-            this.recoverMode = true;
+            this.recoverMode = true; //Server está em recoverMode, não responde a pedidos do Client
             dataSession.multicast(request, new JGroupsService(), null);
         } catch (IOException e) {
             e.printStackTrace();
@@ -115,9 +116,12 @@ public class Server implements MessageListener{
             if(this.readFromClient){
                 if((msg instanceof Balance) && (!msg.isResponse())){
                     Balance bal = (Balance) msg;
-                    bal.setAmount(bank.getBalance(bal.getAccountId()));
-                    bal.setResponse();
-                    bal.setDone();
+                    int amount = bank.getBalance(bal.getAccountId());
+                    if(amount>0) {
+                        bal.setAmount(amount);
+                        bal.setDone(true);
+                    }
+                    bal.setResponse(true);
                     Message reply = dataSession.createMessage();
                     byte[] bytes = ObjectSerializable.ObjectToBytes(bal);
                     reply.setPayload(bytes);
@@ -126,8 +130,8 @@ public class Server implements MessageListener{
                 else if((msg instanceof Mov) && (!msg.isResponse())){
                     Mov mov = (Mov) msg;
                     if(bank.mov(mov.getAccountId(), mov.getAmount(), mov.getMessageId()))
-                        mov.setDone();
-                    mov.setResponse();
+                        mov.setDone(true);
+                    mov.setResponse(true);
                     Message reply = dataSession.createMessage();
                     byte[] bytes = ObjectSerializable.ObjectToBytes(mov);
                     reply.setPayload(bytes);
@@ -137,8 +141,8 @@ public class Server implements MessageListener{
                 else if ((msg instanceof NewAccount) && (!msg.isResponse())) {
                     NewAccount newAccount = (NewAccount) msg;
                     newAccount.setAccountId(bank.newAccount(newAccount.getMessageId()));
-                    newAccount.setDone();
-                    newAccount.setResponse();
+                    newAccount.setDone(true);
+                    newAccount.setResponse(true);
                     Message reply = dataSession.createMessage();
                     byte[] bytes = ObjectSerializable.ObjectToBytes(newAccount);
                     reply.setPayload(bytes);
@@ -148,10 +152,10 @@ public class Server implements MessageListener{
                 else if ((msg instanceof Transf) && (!msg.isResponse())) {
                     Transf transf = (Transf) msg;
                     if(bank.transf(transf.getSource(), transf.getDest(), transf.getAmount(), transf.getMessageId())) {
-                        transf.setDone();
+                        transf.setDone(true);
                         this.operations.addMessage(msg);
                     }
-                    transf.setResponse();
+                    transf.setResponse(true);
                     Message reply = dataSession.createMessage();
                     byte[] bytes = ObjectSerializable.ObjectToBytes(transf);
                     reply.setPayload(bytes);
@@ -159,9 +163,12 @@ public class Server implements MessageListener{
                 }
                 else if ((msg instanceof MovList) && (!msg.isResponse())) {
                     MovList movList = (MovList) msg;
-                    movList.setMovements(bank.movList(movList.getAccountId(), movList.getnMovs()));
-                    movList.setDone();
-                    movList.setResponse();
+                    List<Movement> movs = bank.movList(movList.getAccountId(), movList.getnMovs());
+                    if(movs != null) {
+                        movList.setMovements(movs);
+                        movList.setDone(true);
+                    }
+                    movList.setResponse(true);
                     Message reply = dataSession.createMessage();
                     byte[] bytes = ObjectSerializable.ObjectToBytes(movList);
                     reply.setPayload(bytes);
@@ -170,6 +177,7 @@ public class Server implements MessageListener{
                 else if ((msg instanceof GetState) && (!msg.isResponse())) {
                     GetState getState = (GetState) msg;
                     boolean flag=true;
+                    getState.setResponse(true);
                     if(getState.isIncremental()) {
                         if(this.operations.containsOpId(getState.getLastOpId()))
                             getState.setOperations(this.operations.getListSinceId(getState.getLastOpId()));
@@ -181,8 +189,7 @@ public class Server implements MessageListener{
                         getState.setDataBaseBank(this.bank.getDataBaseBank());
                     if (flag) {
                         log(this.bank.getDataBaseBank().toString());
-                        getState.setDone();
-                        getState.setResponse();
+                        getState.setDone(true);
                         Message reply = dataSession.createMessage();
                         byte[] bytes = ObjectSerializable.ObjectToBytes(getState);
                         reply.setPayload(bytes);
@@ -243,6 +250,14 @@ public class Server implements MessageListener{
         String[] tokens = new String[0];
         String read;
         int id = 0;
+
+
+        /**
+         * O servidor arranca aqui, existem 3 modos (start, join, recover)
+         * start id -> inicia o Server com o número 'id' a partir do 0
+         * join id -> inicia o Server com o número 'id' e pede o estado completo a outros Servers
+         *  recover id -> recupera o Server com o número 'id' e pede eventuais atualizações a outros Servers
+         */
 
         String help = "Hello! How star the Server?\n"+
                 "-> start    id    [start first server]\n"+

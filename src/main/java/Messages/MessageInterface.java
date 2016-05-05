@@ -7,6 +7,6 @@ public interface MessageInterface{
     public String getMessageId();
     public boolean isResponse();
     boolean isDone();
-    void setDone();
-    void setResponse();
+    void setDone(boolean done);
+    void setResponse(boolean response);
 }

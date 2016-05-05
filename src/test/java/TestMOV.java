@@ -16,29 +16,36 @@ import java.util.concurrent.atomic.AtomicInteger;
  *  conta, é o que está no lado do servidor.
  */
 
+/**
+ *  São utilizadas duas Threads que simulam a execução simultanea de dois Clients, para qualquer número de Servers
+ *  São criadas 'CONTAS' contas;
+ *  São feitas 'MOV' movimentos aleatórias nas contas criadas;
+ *  No fim é verificado que o saldo no Server, para cada conta criada corresponde ao valor esperado
+ */
+
 public class TestMOV extends TestCase {
     private static final int CONTAS = 6;
     private static final int MOV = 100;
-    private long firstId;
+    private int firstId;
 
     @org.junit.Test
     public void teste(){
-        HashMap<Long, AtomicInteger> contas = new HashMap();
+        HashMap<Integer, AtomicInteger> contas = new HashMap();
         BankStub bank = new BankStub();
         long idAux;
 
-        long id1 = bank.newAccount(null);
+        int id1 = bank.newAccount(null);
         firstId = id1;
         contas.put(id1, new AtomicInteger(0));
-        long  id2 = bank.newAccount(null);
+        int id2 = bank.newAccount(null);
         contas.put(id2, new AtomicInteger(0));
-        long  id3 = bank.newAccount(null);
+        int id3 = bank.newAccount(null);
         contas.put(id3, new AtomicInteger(0));
-        long  id4 = bank.newAccount(null);
+        int id4 = bank.newAccount(null);
         contas.put(id4, new AtomicInteger(0));
-        long  id5 = bank.newAccount(null);
+        int id5 = bank.newAccount(null);
         contas.put(id5, new AtomicInteger(0));
-        long  id6 = bank.newAccount(null);
+        int id6 = bank.newAccount(null);
         contas.put(id6, new AtomicInteger(0));
 
         ClientTest c1 = new ClientTest(contas);
@@ -63,10 +70,10 @@ public class TestMOV extends TestCase {
 
 
     public class ClientTest extends Thread {
-        HashMap<Long, AtomicInteger> contas;
+        HashMap<Integer, AtomicInteger> contas;
         BankStub bank;
 
-        public ClientTest(HashMap<Long, AtomicInteger> contas){
+        public ClientTest(HashMap<Integer, AtomicInteger> contas){
             this.contas=contas;
             this.bank = new BankStub();
         }
@@ -74,9 +81,10 @@ public class TestMOV extends TestCase {
         @Override
         public void run() {
             Random generator = new Random();
-            long id=0;
+            int id=0;
             for(int i = 0;i<MOV;i++) {
-                int val = generator.nextInt(100)-50;
+                // TODO: 05/05/16 valores negativos...
+                int val = generator.nextInt(100);
 
                 do {
                     id = generator.nextInt(CONTAS)+firstId;

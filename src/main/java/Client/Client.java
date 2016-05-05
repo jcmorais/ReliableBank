@@ -18,7 +18,7 @@ public class Client {
         BufferedReader in =
                 new BufferedReader(new InputStreamReader(System.in));
         String line;
-        long id;
+        int id;
         int amount;
 
         String help = "------- Options -------\n"+
@@ -34,14 +34,18 @@ public class Client {
 
             switch (tokens[0]){
                 case "1":
-                    System.out.println("ID:"+bank.newAccount(null));
+                    System.out.println("ID: "+bank.newAccount(null));
                     break;
                 case "2":
-                    id = Long.parseLong(tokens[1]);
-                    System.out.println(bank.getBalance(id));
+                    id = Integer.parseInt(tokens[1]);
+                    amount = bank.getBalance(id);
+                    if(amount>=0)
+                        System.out.println("balance: "+amount);
+                    else
+                        System.out.println("bad :(");
                     break;
                 case "3":
-                    id = Long.parseLong(tokens[1]);
+                    id = Integer.parseInt(tokens[1]);
                     amount = Integer.parseInt(tokens[2]);
                     if(bank.mov(id, amount, null))
                         System.out.println("good :)");
@@ -49,8 +53,8 @@ public class Client {
                         System.out.println("bad :(");
                     break;
                 case "4":
-                    long s = Long.parseLong(tokens[1]);
-                    long d = Long.parseLong(tokens[2]);
+                    int s = Integer.parseInt(tokens[1]);
+                    int d = Integer.parseInt(tokens[2]);
                     amount = Integer.parseInt(tokens[3]);
                     if(bank.transf(s, d, amount, null))
                         System.out.println("good :)");
@@ -58,11 +62,17 @@ public class Client {
                         System.out.println("bad :(");
                     break;
                 case "5":
-                    id = Long.parseLong(tokens[1]);
+                    id = Integer.parseInt(tokens[1]);
                     int n = Integer.parseInt(tokens[2]);
                     List<Movement> movs = bank.movList(id, n);
-                    for(Movement m:movs)
-                        System.out.println(m.toString());
+                    if(movs != null) {
+                        if(movs.size() == 0)
+                            System.out.println("No movements");
+                        for(Movement m:movs)
+                            System.out.println(m.toString());
+                    }
+                    else
+                        System.out.println("bad :(");
                     break;
                 default:
                     System.out.println("What?");

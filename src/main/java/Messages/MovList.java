@@ -14,11 +14,11 @@ public class MovList implements MessageInterface, Serializable {
     private String messageId;
     private boolean done;
     private boolean response;
-    private long accountId;
+    private int accountId;
     private int nMovs;
     private List<Movement> movements;
 
-    public MovList(String messageId, long accountId, int nMovs) {
+    public MovList(String messageId, int accountId, int nMovs) {
         this.messageId = messageId;
         this.accountId = accountId;
         this.nMovs = nMovs;
@@ -40,14 +40,16 @@ public class MovList implements MessageInterface, Serializable {
     }
 
     @Override
-    public void setDone() {
-        this.done = true;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     @Override
-    public void setResponse() { this.response = true; }
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
 
-    public long getAccountId() {
+    public int getAccountId() {
         return accountId;
     }
 

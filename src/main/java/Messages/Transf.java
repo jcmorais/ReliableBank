@@ -9,11 +9,11 @@ public class Transf implements MessageInterface, Serializable {
     private String messageId;
     private boolean done;
     private boolean response;
-    private long source;
-    private long dest;
+    private int source;
+    private int dest;
     private int amount;
 
-    public Transf(String messageId, long source, long dest, int amount) {
+    public Transf(String messageId, int source, int dest, int amount) {
         this.messageId = messageId;
         this.source = source;
         this.dest = dest;
@@ -34,22 +34,20 @@ public class Transf implements MessageInterface, Serializable {
     }
 
     @Override
-    public void setDone() {
-        this.done = true;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 
     @Override
-    public void setResponse() { this.response = true; }
+    public void setResponse(boolean response) {
+        this.response = response;
+    }
 
-    public long getSource() { return this.source; }
+    public int getSource() { return this.source; }
 
-    public long getDest() { return this.dest; }
+    public int getDest() { return this.dest; }
 
     public int getAmount() {
         return this.amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
     }
 }

@@ -42,21 +42,36 @@ public class BankDAO {
     }
 
 
-    public long newAccount(Connection connection) throws SQLException {
-        long id = this.getNextAccountId(connection);
+    public int newAccount(Connection connection) throws SQLException {
+        int id = this.getNextAccountId(connection);
         String updateStatement = "INSERT INTO accounts VALUES (?, 0)";
         PreparedStatement statement = connection.prepareStatement(updateStatement);
-        statement.setInt(1, (int) id);
+        statement.setInt(1,  id);
         statement.execute();
         statement.close();
         return id;
     }
 
 
-    public int getBalance(Connection connection, long id) throws SQLException {
+    public boolean hasAccount(Connection connection, int id) throws SQLException {
+        String st = "SELECT * FROM accounts WHERE id = ?";
+        PreparedStatement statement = connection.prepareStatement(st);
+        statement.setInt(1,  id);
+        ResultSet rs = statement.executeQuery();
+        boolean res = false;
+        if(rs.next()){
+            res = true;
+        }
+        statement.close();
+        return res;
+
+    }
+
+
+    public int getBalance(Connection connection, int id) throws SQLException {
         String st = "SELECT balance FROM accounts WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(st);
-        statement.setInt(1, (int) id);
+        statement.setInt(1,  id);
         int balance=0;
         ResultSet rs = statement.executeQuery();
         if(rs.next()){
@@ -66,11 +81,11 @@ public class BankDAO {
         return balance;
     }
 
-    public void mov(Connection connection, long id, int amount) throws SQLException {
+    public void mov(Connection connection, int id, int amount) throws SQLException {
         String updateStatement = "UPDATE accounts SET balance = balance + ? WHERE id = ? ";
         PreparedStatement statement = connection.prepareStatement(updateStatement);
         statement.setInt(1,amount);
-        statement.setInt(2, (int) id);
+        statement.setInt(2,  id);
         statement.execute();
         statement.close();
     }
@@ -122,13 +137,12 @@ public class BankDAO {
     }
 
 
-    // TODO: 28/04/16 passar a receber como arg o objeto Movement, com mais detalhes para serem persitidos...
-    public void movement(Connection connection, long accountId, String type, int amount) throws SQLException {
+    public void movement(Connection connection, int accountId, String type, int amount) throws SQLException {
         String updateStatement = "INSERT INTO movement VALUES (?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(updateStatement);
 
         statement.setInt(1, this.getNextMovId(connection));
-        statement.setInt(2, (int) accountId);
+        statement.setInt(2,  accountId);
         statement.setString(3, type);
         statement.setInt(4, amount);
         statement.execute();
@@ -136,12 +150,12 @@ public class BankDAO {
     }
 
 
-    public List<Movement> getMovs(Connection connection, long accountId, int n) throws SQLException {
+    public List<Movement> getMovs(Connection connection, int accountId, int n) throws SQLException {
         ArrayList<Movement> res = new ArrayList<>();
         String updateStatement = "SELECT * FROM movement WHERE idAccount = ? order by id desc FETCH FIRST ? ROWS ONLY";
         // order by id desc limit N;
         PreparedStatement statement = connection.prepareStatement(updateStatement);
-        statement.setInt(1,(int) accountId);
+        statement.setInt(1, accountId);
         statement.setInt(2, n);
         ResultSet rs = statement.executeQuery();
 
@@ -180,7 +194,7 @@ public class BankDAO {
         ResultSet rs = statement.executeQuery();
 
         while(rs.next()){
-            Account account = new Account(rs.getLong(1), rs.getInt(2));
+            Account account = new Account(rs.getInt(1), rs.getInt(2));
             account.setMovs(this.getMovs(connection, account.getId(), 10000));
             accounts.add(account);
         }
