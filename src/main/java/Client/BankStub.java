@@ -23,8 +23,6 @@ public class BankStub implements BankInterface, MessageListener {
     private Protocol protocol;
     private ControlSession controlSession;
 
-    private int state; // TODO: 02/05/16 todas as Messages devem incluir este ID!!!
-
     MessageInterface msgReply;
     private String waitFor; //id that onMessage() wants receive and notify
 
@@ -46,11 +44,6 @@ public class BankStub implements BankInterface, MessageListener {
         } catch (GroupException e) {
             e.printStackTrace();
         }
-
-        //ask to Server the current state
-        MessageInterface msg = new StateInfo(this.getNextId());
-        StateInfo msgRes = (StateInfo) this.sendAndRequest(msg);
-        this.setState(msgRes.getState());
     }
 
     @Override
@@ -126,20 +119,6 @@ public class BankStub implements BankInterface, MessageListener {
             this.waitFor=null;
             notify();
         }
-        else if(msg instanceof StateInfo){
-            StateInfo si = (StateInfo) msg;
-            if(si.isNewState() && this.getState() != si.getState())
-                this.setState(si.getState());
-        }
         return null;
-    }
-
-    public void setState(int state) {
-        this.state = state;
-        System.out.println("New sate: "+this.state);
-    }
-
-    public int getState() {
-        return state;
     }
 }

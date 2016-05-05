@@ -3,6 +3,7 @@ package Server;
 import DAO.BankDAO;
 import Entitys.Account;
 import Entitys.BankInterface;
+import Entitys.DataBaseBank;
 import Entitys.Movement;
 
 import java.sql.Connection;
@@ -15,21 +16,15 @@ import java.util.*;
  */
 public class BankImp implements BankInterface {
     private BankDAO bankDAO;
-
-    // TODO: 28/04/16 "bank" + identificador único -> passado como argumento?
     private static String DB_PREFIX = "bank";
     private static String PROTOCOL = "jdbc:derby:";
-
     private String DB_NAME;
     private Connection connection;
-
-
 
     public BankImp(int serverId) {
             this.bankDAO = new BankDAO();
             this.DB_NAME = DB_PREFIX+serverId;
     }
-
 
     public void creatDB(){
         try {
@@ -73,6 +68,7 @@ public class BankImp implements BankInterface {
         long id = -1;
         try {
             id = this.bankDAO.newAccount(this.connection);
+            this.bankDAO.updateLastOpId(this.connection, opId);
             this.connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -100,7 +96,7 @@ public class BankImp implements BankInterface {
                 this.bankDAO.movement(this.connection, id, "DEPOSIT", amount);
                 ok = true;
             }
-
+            this.bankDAO.updateLastOpId(this.connection, opId);
             this.connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -123,6 +119,7 @@ public class BankImp implements BankInterface {
                 this.bankDAO.movement(this.connection, source, "TRANSF", -amount);
                 this.bankDAO.mov(this.connection, dest, amount);
                 this.bankDAO.movement(this.connection, dest, "TRANSF", amount);
+                this.bankDAO.updateLastOpId(this.connection, opId);
                 this.connection.commit();
                 return true;
             }
@@ -147,25 +144,6 @@ public class BankImp implements BankInterface {
         return null;
     }
 
-    public List<Account> getAccounts() {
-        try {
-            return this.bankDAO.getAccounts(this.connection);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-    public void setLastOpId(String opId) {
-        try {
-            this.bankDAO.updateLastOpId(this.connection, opId);
-            this.connection.commit();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public String getLastOpId() {
         try {
             return this.bankDAO.getLastOpId(this.connection);
@@ -177,5 +155,23 @@ public class BankImp implements BankInterface {
 
     private void log(String s){
         System.out.println(s);
+    }
+
+    public void populateDB(DataBaseBank dataBaseBank) {
+        try {
+            this.bankDAO.populateDB(this.connection, dataBaseBank);
+            this.connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+                this.connection.rollback();
+            } catch (SQLException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    public DataBaseBank getDataBaseBank() {
+        return this.bankDAO.getDataBaseBank(this.connection);
     }
 }

@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class TestTransf {
 
     private static final int CONTAS = 6;
-    private static final int TRANSF = 100;
+    private static final int TRANSF = 10;
     private static final int startAmount = 100;
     private long firstId;
 

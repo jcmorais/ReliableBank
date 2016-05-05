@@ -1,5 +1,7 @@
 package Messages;
 
+import Entitys.DataBaseBank;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,17 +14,23 @@ public class GetState implements MessageInterface, Serializable {
     private boolean done;
     private boolean response;
 
-    private int stateId;
+    private boolean incremental;
+    private boolean allDB;
 
-    //id da última operação feita com sucesso pelo Servidor
-    private String lastOpId;
-
+    //incremental
+    private String lastOpId; //id da última operação feita com sucesso pelo Servidor
     private List<MessageInterface> operations;
 
-    public GetState(String messageId, String lastOpId, int stateId) {
+    //allDb
+    private DataBaseBank dataBaseBank;
+
+    public GetState(String messageId, String lastOpId) {
         this.messageId = messageId;
         this.lastOpId = lastOpId;
-        this.stateId = stateId;
+        this.incremental = false;
+        this.allDB = false;
+        this.dataBaseBank = null;
+        this.operations = null;
     }
 
     @Override
@@ -44,14 +52,6 @@ public class GetState implements MessageInterface, Serializable {
     @Override
     public void setResponse() { this.response = true; }
 
-    public int getState() {
-        return this.stateId;
-    }
-
-    public void setStateId(int stateId) {
-        this.stateId = stateId;
-    }
-
     public String getLastOpId() {
         return lastOpId;
     }
@@ -62,5 +62,30 @@ public class GetState implements MessageInterface, Serializable {
 
     public void setOperations(List<MessageInterface> operations) {
         this.operations = operations;
+    }
+
+
+    public boolean isAllDB() {
+        return allDB;
+    }
+
+    public boolean isIncremental() {
+        return incremental;
+    }
+
+    public void setAllDB(boolean allDB) {
+        this.allDB = allDB;
+    }
+
+    public void setIncremental(boolean incremental) {
+        this.incremental = incremental;
+    }
+
+    public DataBaseBank getDataBaseBank() {
+        return dataBaseBank;
+    }
+
+    public void setDataBaseBank(DataBaseBank dataBaseBank) {
+        this.dataBaseBank = dataBaseBank;
     }
 }

@@ -13,9 +13,6 @@ public class Transf implements MessageInterface, Serializable {
     private long dest;
     private int amount;
 
-    private int stateId;
-
-
     public Transf(String messageId, long source, long dest, int amount) {
         this.messageId = messageId;
         this.source = source;
@@ -54,9 +51,5 @@ public class Transf implements MessageInterface, Serializable {
 
     public void setAmount(int amount) {
         this.amount = amount;
-    }
-
-    public int getState() {
-        return this.stateId;
     }
 }

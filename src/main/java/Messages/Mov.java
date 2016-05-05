@@ -12,8 +12,6 @@ public class Mov implements Serializable, MessageInterface {
     private long accountId;
     private int amount;
 
-    private int stateId;
-
     public Mov(String messageId, long accountId, int amount) {
         this.messageId = messageId;
         this.amount = amount;
@@ -49,7 +47,4 @@ public class Mov implements Serializable, MessageInterface {
     @Override
     public void setResponse() { this.response = true; }
 
-    public int getState() {
-        return this.stateId;
-    }
 }

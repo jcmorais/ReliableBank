@@ -11,8 +11,6 @@ public class NewAccount implements MessageInterface, Serializable {
     private long accountId;
     private boolean response;
 
-    private int stateId;
-
     public NewAccount(String messageId) {
         this.messageId = messageId;
         this.done = false;
@@ -47,8 +45,4 @@ public class NewAccount implements MessageInterface, Serializable {
 
     @Override
     public void setResponse() { this.response = true; }
-
-    public int getState() {
-        return this.stateId;
-    }
 }
