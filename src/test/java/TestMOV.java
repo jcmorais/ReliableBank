@@ -32,7 +32,6 @@ public class TestMOV extends TestCase {
     public void teste(){
         HashMap<Integer, AtomicInteger> contas = new HashMap();
         BankStub bank = new BankStub();
-        long idAux;
 
         int id1 = bank.newAccount(null);
         firstId = id1;
