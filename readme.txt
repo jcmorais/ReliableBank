@@ -5,16 +5,16 @@
 1) iniciar primeiro servidor S1
 > start 1
 
-2) correr teste TestMov
+2) correr teste TestMovOC
 
 3) juntar um novo servidor S2 (pede o estado total)
 > join 2
 
-4) correr teste TestMov
+4) correr teste TestMovOC
 
 5) terminar servidor S1
 
-6) correr teste TestMov
+6) correr teste TestMovOC
 
 7) recuperar o servidor S1 (pede atualizações feitas depois do passo 5) )
 > recover 1
