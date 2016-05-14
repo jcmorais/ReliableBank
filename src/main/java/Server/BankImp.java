@@ -55,7 +55,8 @@ public class BankImp implements BankInterface {
     @Override
     public int getBalance(int accountId) {
         try {
-            return this.bankDAO.getBalance(this.connection, accountId);
+            if(this.bankDAO.hasAccount(connection, accountId))
+                return this.bankDAO.getBalance(this.connection, accountId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -84,6 +85,9 @@ public class BankImp implements BankInterface {
     public synchronized boolean mov(int id, int amount, String opId) {
         boolean ok = false;
         try {
+            if(!this.bankDAO.hasAccount(connection, id))
+                return false; //invalid account!
+
             int balance = this.bankDAO.getBalance(this.connection, id);
             if( (amount<0) && ((balance+amount) >= 0)) {
                 this.bankDAO.mov(this.connection, id, amount);
@@ -112,6 +116,11 @@ public class BankImp implements BankInterface {
     @Override
     public boolean transf(int source, int dest, int amount, String opId) {
         try {
+            if(!this.bankDAO.hasAccount(connection, source))
+                return false; //invalid account!
+            if(!this.bankDAO.hasAccount(connection, dest))
+                return false; //invalid account!
+
             int balanceSource = this.bankDAO.getBalance(this.connection, source);
             if((balanceSource-amount) >= 0) {
                 this.bankDAO.mov(this.connection, source, -amount);

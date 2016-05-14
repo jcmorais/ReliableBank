@@ -117,7 +117,7 @@ public class Server implements MessageListener{
                 if((msg instanceof Balance) && (!msg.isResponse())){
                     Balance bal = (Balance) msg;
                     int amount = bank.getBalance(bal.getAccountId());
-                    if(amount>0) {
+                    if(amount>=0) {
                         bal.setAmount(amount);
                         bal.setDone(true);
                     }
@@ -241,7 +241,8 @@ public class Server implements MessageListener{
 
 
     public static void log(String log){
-        System.out.println(log);
+        //para ligar/desligar as mensagens de log
+        //System.out.println(log);
     }
 
     public static void main(String[] args) throws IOException {

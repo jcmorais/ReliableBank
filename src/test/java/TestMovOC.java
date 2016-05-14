@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TestMovOC extends TestCase {
     private static final int CONTAS = 6;
-    private static final int MOV = 100;
+    private static final int MOV = 300;
     private int firstId;
 
 
@@ -36,6 +36,7 @@ public class TestMovOC extends TestCase {
 
 
         int id=0;
+        long startTime = System.currentTimeMillis();
         for(int i = 0;i<MOV;i++) {
             // TODO: 05/05/16 valores negativos...
             int val = generator.nextInt(100)-50;
@@ -44,13 +45,15 @@ public class TestMovOC extends TestCase {
                 id = generator.nextInt(CONTAS)+firstId;
             }
             while(id<=0);
-
-            System.out.println(id +" "+ val);
+            //System.out.println(id +" "+ val);
             if(bank.mov(id,val,null)) {
                 int aux = contas.get(id) + val;
                 contas.put(id, aux);
             }
         }
+
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println((MOV/(estimatedTime/1000))+" requests per second");
 
         assertEquals(contas.get(id1).intValue(), bank.getBalance(id1));
         assertEquals(contas.get(id2).intValue(), bank.getBalance(id2));

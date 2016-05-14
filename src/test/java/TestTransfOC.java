@@ -9,7 +9,7 @@ import java.util.Random;
  */
 public class TestTransfOC extends TestCase {
     private static final int CONTAS = 6;
-    private static final int TRANSF = 100;
+    private static final int TRANSF = 300;
     private static final int startAmount = 100;
     private int firstId;
 
@@ -43,6 +43,7 @@ public class TestTransfOC extends TestCase {
 
         int idS=0;
         int idD=0;
+        long startTime = System.currentTimeMillis();
         for(int i = 0;i<TRANSF;i++) {
             int val = generator.nextInt(100)+1;
 
@@ -59,6 +60,9 @@ public class TestTransfOC extends TestCase {
                 contas.put(idD, aux);
             }
         }
+
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println((TRANSF/(estimatedTime/1000))+" requests per second");
 
         assertEquals(contas.get(id1).intValue(), bank.getBalance(id1));
         assertEquals(contas.get(id2).intValue(), bank.getBalance(id2));

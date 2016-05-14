@@ -1,55 +1,64 @@
 import Client.BankStub;
-import junit.framework.TestCase;
 
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Created by carlosmorais on 27/04/16.
- */
+import static org.junit.Assert.assertEquals;
 
 /**
- *      Teste que onde são criadas N CONTAS e utilizados 2 clientes
- *  que fazem 100 MOVimentos cada.
- *      No final é verificado que  soma do saldo esperado para cada
- *  conta, é o que está no lado do servidor.
+ * Created by carlosmorais on 28/04/16.
  */
+
 
 /**
  *  São utilizadas duas Threads que simulam a execução simultanea de dois Clients, para qualquer número de Servers
  *  São criadas 'CONTAS' contas;
- *  São feitas 'MOV' movimentos aleatórias nas contas criadas;
+ *  É feito um deposito no valor de 'startAmount' para cada conta criada;
+ *  São feitas 'TRANSF' transferências aleatórias entre as contas criadas;
  *  No fim é verificado que o saldo no Server, para cada conta criada corresponde ao valor esperado
+ *
+ *  Nota: Problemas com 2 Servidores, solução: http://jopereira.github.io/jgcs/jgcs-spread/index.html
  */
 
-public class TestMOV extends TestCase {
+public class TestTransfTC {
+
     private static final int CONTAS = 6;
-    private static final int MOV = 100;
+    private static final int TRANSF = 50;
+    private static final int startAmount = 100;
     private int firstId;
 
     @org.junit.Test
     public void teste(){
         HashMap<Integer, AtomicInteger> contas = new HashMap();
         BankStub bank = new BankStub();
+        long idAux;
 
         int id1 = bank.newAccount(null);
         firstId = id1;
-        contas.put(id1, new AtomicInteger(0));
+        contas.put(id1, new AtomicInteger(startAmount));
         int id2 = bank.newAccount(null);
-        contas.put(id2, new AtomicInteger(0));
+        contas.put(id2, new AtomicInteger(startAmount));
         int id3 = bank.newAccount(null);
-        contas.put(id3, new AtomicInteger(0));
+        contas.put(id3, new AtomicInteger(startAmount));
         int id4 = bank.newAccount(null);
-        contas.put(id4, new AtomicInteger(0));
+        contas.put(id4, new AtomicInteger(startAmount));
         int id5 = bank.newAccount(null);
-        contas.put(id5, new AtomicInteger(0));
+        contas.put(id5, new AtomicInteger(startAmount));
         int id6 = bank.newAccount(null);
-        contas.put(id6, new AtomicInteger(0));
+        contas.put(id6, new AtomicInteger(startAmount));
+
+        bank.mov(id1, startAmount, null);
+        bank.mov(id2, startAmount, null);
+        bank.mov(id3, startAmount, null);
+        bank.mov(id4, startAmount, null);
+        bank.mov(id5, startAmount, null);
+        bank.mov(id6, startAmount, null);
 
         ClientTest c1 = new ClientTest(contas);
         ClientTest c2 = new ClientTest(contas);
 
+        long startTime = System.currentTimeMillis();
         c1.start();
         c2.start();
         try {
@@ -58,6 +67,9 @@ public class TestMOV extends TestCase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        long estimatedTime = System.currentTimeMillis() - startTime;
+        System.out.println((TRANSF/(estimatedTime/1000))+" requests per second");
 
         assertEquals(contas.get(id1).get(), bank.getBalance(id1));
         assertEquals(contas.get(id2).get(), bank.getBalance(id2));
@@ -80,19 +92,20 @@ public class TestMOV extends TestCase {
         @Override
         public void run() {
             Random generator = new Random();
-            int id=0;
-            for(int i = 0;i<MOV;i++) {
-                // TODO: 05/05/16 valores negativos...
-                int val = generator.nextInt(100);
+            int idS=0;
+            int idD=0;
+            for(int i = 0;i<TRANSF;i++) {
+                int val = generator.nextInt(100)+1;
 
                 do {
-                    id = generator.nextInt(CONTAS)+firstId;
+                    idS = generator.nextInt(CONTAS)+firstId;
+                    idD = generator.nextInt(CONTAS)+firstId;
                 }
-                while(id<=0);
+                while(idS<=0 && idD<=0 && idD!=idS);
 
-                System.out.println(id +" "+ val);
-                if(bank.mov(id,val,null)) {
-                    this.contas.get(id).addAndGet(val);
+                if(bank.transf(idS, idD, val, null)) {
+                    this.contas.get(idS).addAndGet(-val);
+                    this.contas.get(idD).addAndGet(val);
                 }
             }
         }

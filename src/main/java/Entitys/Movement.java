@@ -43,7 +43,7 @@ public class Movement implements Serializable {
     public String toString() {
         return "Movement{" +
                 "type='" + type + '\'' +
-                ", amount=" + amount +
+                ", amount= " + amount +
                 '}';
     }
 }
